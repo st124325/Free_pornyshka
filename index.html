@@ -18,7 +18,12 @@
       --container: 1280px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
 
     html {
       background: var(--bg);
@@ -39,6 +44,9 @@
     img, video {
       display: block;
       max-width: 100%;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: auto;
     }
 
     button, input {
@@ -204,13 +212,19 @@
     }
 
     .media-wrap img,
-    .media-wrap video,
-    .modal-media img,
-    .modal-media video {
+    .media-wrap video {
       width: 100%;
       height: 100%;
       object-fit: cover;
       background: #f2f2f2;
+    }
+
+    .modal-media img,
+    .modal-media video {
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+      object-fit: contain;
     }
 
     .media-wrap::after {
@@ -388,11 +402,6 @@
       width: 100%;
       height: 100%;
       background: #0f0f0f;
-    }
-
-    .modal-media img,
-    .modal-media video {
-      object-fit: contain;
     }
 
     .modal-fade {
@@ -577,7 +586,7 @@
     }
   </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
   <div id="ageGate" class="overlay">
     <div class="overlay-card">
       <h2>Вам есть 18?</h2>
@@ -610,6 +619,7 @@
             placeholder="Поиск по имени файла"
             aria-label="Поиск по имени файла"
             autocomplete="off"
+            spellcheck="false"
           />
         </div>
       </div>
@@ -652,7 +662,13 @@
     const mediaFiles = [
       'Запись экрана 2026-03-07 234250.mp4',
       'IMG_6006.jpeg',
-      
+      'photo_2026-04-16_23-23-45.jpg',
+      'photo_2026-04-16_23-23-46.jpg',
+      'photo_2026-04-16_23-23-55.jpg',
+      'photo_2026-04-16_23-23-59.jpg',
+      'photo_2026-04-16_23-24-01.jpg',
+      'photo_2026-04-16_23-24-05.jpg',
+      'Жесткий нигер трахается(за бананы)',
     ];
 
     const ageGate = document.getElementById('ageGate');
@@ -706,21 +722,32 @@
       return null;
     }
 
-    function buildMediaFromArray() {
-      mediaItems = mediaFiles
-        .map(fileName => {
-          const cleanFileName = String(fileName).split(/[\\/]/).pop();
-          const type = getMediaTypeFromName(cleanFileName);
-          if (!type) return null;
+    function shuffleArray(array) {
+      const result = [...array];
+      for (let i = result.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
 
-          return {
-            type,
-            fileName: cleanFileName,
-            title: getFileNameWithoutExtension(cleanFileName),
-            src: `${META_FOLDER}/${cleanFileName}`
-          };
-        })
-        .filter(Boolean);
+    function buildMediaFromArray() {
+      mediaItems = shuffleArray(
+        mediaFiles
+          .map(fileName => {
+            const cleanFileName = String(fileName).split(/[\\/]/).pop();
+            const type = getMediaTypeFromName(cleanFileName);
+            if (!type) return null;
+
+            return {
+              type,
+              fileName: cleanFileName,
+              title: getFileNameWithoutExtension(cleanFileName),
+              src: `${META_FOLDER}/${cleanFileName}`
+            };
+          })
+          .filter(Boolean)
+      );
 
       visibleItems = [...mediaItems];
       brandSubtitle.textContent = `Файлы берутся из папки ${META_FOLDER}`;
@@ -787,6 +814,7 @@
               alt="${escapeHtml(item.title)}"
               loading="lazy"
               decoding="async"
+              draggable="false"
               onerror="markCardMissing(this, '${escapeHtml(item.src)}')"
             />
           `;
@@ -911,6 +939,7 @@
         mediaElement.alt = item.title;
         mediaElement.loading = 'eager';
         mediaElement.decoding = 'async';
+        mediaElement.draggable = false;
         mediaElement.onerror = () => markModalMissing(item.src);
       } else {
         mediaElement = document.createElement('video');
@@ -1002,6 +1031,12 @@
     });
 
     document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && ['c', 'a', 'x', 's', 'u'].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+      }
+      if (event.key === 'F12') {
+        event.preventDefault();
+      }
       if (event.key === 'Escape' && modal.classList.contains('open')) {
         closeModal();
         return;
@@ -1009,6 +1044,10 @@
       if (event.key === 'ArrowRight' && modal.classList.contains('open')) goToNext();
       if (event.key === 'ArrowLeft' && modal.classList.contains('open')) goToPrev();
     });
+
+    document.addEventListener('copy', event => event.preventDefault());
+    document.addEventListener('cut', event => event.preventDefault());
+    document.addEventListener('dragstart', event => event.preventDefault());
 
     renderFeed();
   </script>
