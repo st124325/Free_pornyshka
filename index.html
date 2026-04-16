@@ -77,7 +77,6 @@
       flex: 1 1 auto;
     }
 
-    .back-btn,
     .confirm-btn {
       appearance: none;
       border: 1px solid var(--line);
@@ -92,7 +91,6 @@
       transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease;
     }
 
-    .back-btn:hover,
     .confirm-btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
@@ -256,13 +254,6 @@
       font-size: 1rem;
       font-weight: 560;
       letter-spacing: -0.02em;
-      word-break: break-word;
-    }
-
-    .card-meta {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
       word-break: break-word;
     }
 
@@ -547,12 +538,7 @@
 
     @media (max-width: 700px) {
       .card-body {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .open-hint {
-        padding-left: 0;
+        align-items: center;
       }
 
       .modal {
@@ -609,8 +595,6 @@
   <header class="topbar">
     <div class="shell topbar-inner">
       <div class="topbar-left">
-        <button id="backButton" class="back-btn" type="button">← Назад</button>
-
         <div class="brand">
           <h1>Media Flow</h1>
           <p id="brandSubtitle">Файлы берутся из папки meta</p>
@@ -666,7 +650,9 @@
     const META_FOLDER = 'meta';
 
     const mediaFiles = [
-      'IMG_6006.jpeg'
+      'Запись экрана 2026-03-07 234250.mp4',
+      'IMG_6006.jpeg',
+      
     ];
 
     const ageGate = document.getElementById('ageGate');
@@ -674,7 +660,6 @@
     const declineAgeButton = document.getElementById('declineAgeButton');
     const feed = document.getElementById('feed');
     const searchInput = document.getElementById('searchInput');
-    const backButton = document.getElementById('backButton');
     const brandSubtitle = document.getElementById('brandSubtitle');
     const statusText = document.getElementById('statusText');
     const modal = document.getElementById('modal');
@@ -794,8 +779,6 @@
         article.setAttribute('aria-label', `${item.title}. Открыть в полноэкранном режиме`);
         article.dataset.index = String(index);
 
-        const metaLabel = item.type === 'photo' ? 'Изображение' : 'Видео';
-
         let mediaMarkup = '';
         if (item.type === 'photo') {
           mediaMarkup = `
@@ -829,7 +812,6 @@
           <div class="card-body">
             <div>
               <h2 class="card-title">${escapeHtml(item.title)}</h2>
-              <p class="card-meta">${metaLabel} · ${escapeHtml(item.fileName)}</p>
             </div>
             <div class="open-hint">Open</div>
           </div>
@@ -987,23 +969,6 @@
       } catch (_) {}
     }
 
-    function handleBack() {
-      if (modal.classList.contains('open')) {
-        closeModal();
-        return;
-      }
-
-      if (!ageGate.classList.contains('hidden')) {
-        if (window.history.length > 1) {
-          window.history.back();
-        }
-        return;
-      }
-
-      ageGate.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
-    }
-
     function confirmAge() {
       ageGate.classList.add('hidden');
       document.body.style.overflow = '';
@@ -1021,7 +986,6 @@
 
     confirmAgeButton.addEventListener('click', confirmAge);
     declineAgeButton.addEventListener('click', declineAge);
-    backButton.addEventListener('click', handleBack);
 
     searchInput.addEventListener('input', () => {
       searchQuery = searchInput.value;
