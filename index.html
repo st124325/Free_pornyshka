@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Ru_pornhub</title>
+  <meta
+    name="description"
+    content="Минималистичная медиа-лента из фото и видео из папки meta."
+  />
+  <style>
+    :root {
+      --bg: #fbfbfa;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #6b6b6b;
+      --line: #e8e8e8;
+      --line-strong: #dcdcdc;
+      --shadow: 0 12px 40px rgba(17, 17, 17, 0.06);
+      --radius: 24px;
+      --container: 1280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html {
+      background: var(--bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(0,0,0,0.02), transparent 30%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+    }
+
+    img,
+    video {
+      display: block;
+      max-width: 100%;
+      -webkit-user-drag: none;
+      user-select: none;
+      pointer-events: auto;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(calc(100% - 24px), var(--container));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: rgba(251, 251, 250, 0.82);
+      border-bottom: 1px solid rgba(232, 232, 232, 0.9);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 64px;
+      padding: 10px 0;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .confirm-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
+      transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        border-color 160ms ease,
+        background-color 160ms ease;
+    }
+
+    .confirm-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
+      border-color: #d4d4d4;
+    }
+
+    .confirm-btn.primary {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 0 1 420px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .search-wrap {
+      flex: 1 1 auto;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .search {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+      padding: 0 16px;
+      color: var(--text);
+      outline: none;
+      transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        background-color 160ms ease;
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
+    }
+
+    .search::placeholder {
+      color: var(--muted);
+    }
+
+    .search:focus {
+      border-color: #cfcfcf;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.05);
+      background: #fff;
+    }
+
+    main {
+      padding: 18px 0 40px;
+    }
+
+    .status {
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .feed {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      grid-column: span 12;
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition:
+        transform 220ms ease,
+        box-shadow 220ms ease,
+        border-color 220ms ease;
+      cursor: pointer;
+      isolation: isolate;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 48px rgba(17,17,17,0.08);
+      border-color: var(--line-strong);
+    }
+
+    .media-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      background: linear-gradient(135deg, #f4f4f4, #ededed);
+      overflow: hidden;
+    }
+
+    .media-wrap img,
+    .media-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #f2f2f2;
+    }
+
+    .modal-media img,
+    .modal-media video {
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+      object-fit: contain;
+    }
+
+    .media-wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(to top, rgba(0,0,0,0.08), transparent 32%);
+      opacity: 0;
+      transition: opacity 180ms ease;
+    }
+
+    .card:hover .media-wrap::after {
+      opacity: 1;
+    }
+
+    .video-indicator {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      z-index: 2;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: rgba(17,17,17,0.7);
+      color: #fff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .card-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px 16px;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 0.96rem;
+      font-weight: 560;
+      letter-spacing: -0.02em;
+      word-break: break-word;
+      line-height: 1.25;
+    }
+
+    .open-hint {
+      flex: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding-left: 8px;
+    }
+
+    .fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #f7f7f7, #efefef);
+      color: var(--muted);
+    }
+
+    .fallback strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .fallback small {
+      font-size: 0.82rem;
+      word-break: break-all;
+    }
+
+    .card.is-missing .fallback,
+    .modal-media.is-missing .fallback {
+      display: flex;
+    }
+
+    .card.is-missing .media-wrap > img,
+    .card.is-missing .media-wrap > video,
+    .modal-media.is-missing > img,
+    .modal-media.is-missing > video {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 40px 20px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.7);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      background: rgba(251, 251, 250, 0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-card {
+      width: min(520px, 100%);
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+
+    .overlay-card h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .overlay-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .overlay-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10,10,10,0.84);
+      z-index: 100;
+      padding: 8px;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-panel {
+      position: relative;
+      width: min(1200px, 100%);
+      height: min(92vh, 1000px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      border-radius: 22px;
+      overflow: hidden;
+      background: #111;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.35);
+    }
+
+    .modal-media {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+    }
+
+    .modal-fade {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 24px 22px 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.62), transparent);
+      color: rgba(255,255,255,0.96);
+      pointer-events: none;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      font-weight: 560;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-subtitle {
+      margin: 6px 0 0;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.94rem;
+      word-break: break-word;
+    }
+
+    .modal-actions {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 6;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .system-player-btn {
+      display: none;
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      color: #fff;
+      padding: 12px 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: transform 160ms ease, background-color 160ms ease;
+    }
+
+    .system-player-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .modal.show-video-action .system-player-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-btn,
+    .nav-btn {
+      position: absolute;
+      z-index: 5;
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      transition: transform 160ms ease, background-color 160ms ease, opacity 160ms ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal-btn:hover,
+    .nav-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .modal-btn {
+      top: 16px;
+      right: 16px;
+      width: 46px;
+      height: 46px;
+      font-size: 1.35rem;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    .nav-btn {
+      top: 50%;
+      transform: translateY(-50%);
+      width: 46px;
+      height: 46px;
+      font-size: 1.5rem;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(calc(-50% - 1px));
+    }
+
+    .nav-prev { left: 12px; }
+    .nav-next { right: 12px; }
+
+    .modal-counter {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 5;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+      font-size: 0.9rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    @media (min-width: 700px) {
+      .card {
+        grid-column: span 6;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .card {
+        grid-column: span 4;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        position: static;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 8px;
+        min-height: auto;
+        padding: 8px 0;
+      }
+
+      .topbar-left,
+      .toolbar-right {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .brand h1 {
+        font-size: 0.96rem;
+      }
+
+      .search {
+        height: 40px;
+        padding: 0 14px;
+      }
+
+      main {
+        padding-top: 10px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .shell {
+        width: min(calc(100% - 16px), var(--container));
+      }
+
+      .feed {
+        gap: 12px;
+      }
+
+      .card-body {
+        padding: 12px 14px 14px;
+      }
+
+      .card-title {
+        font-size: 0.92rem;
+      }
+
+      .open-hint {
+        font-size: 0.82rem;
+      }
+
+      .status {
+        margin-bottom: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+  <div id="ageGate" class="overlay">
+    <div class="overlay-card">
+      <h2>Вам есть 18?</h2>
+      <p>
+        После подтверждения сайт покажет фото и видео из папки <strong>meta</strong>,
+        список файлов уже прописан внутри HTML.
+      </p>
+      <div class="overlay-actions">
+        <button id="confirmAgeButton" class="confirm-btn primary" type="button">Да</button>
+        <button id="declineAgeButton" class="confirm-btn" type="button">Нет</button>
+      </div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <div class="topbar-left">
+        <div class="brand">
+          <h1>Ru_pornhub</h1>
+        </div>
+      </div>
+
+      <div class="toolbar-right">
+        <div class="search-wrap">
+          <input
+            id="searchInput"
+            class="search"
+            type="search"
+            placeholder="Поиск по имени файла"
+            aria-label="Поиск по имени файла"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div id="statusText" class="status">Подтвердите 18+, чтобы загрузить ленту.</div>
+    <section id="feed" class="feed" aria-live="polite"></section>
+  </main>
+
+  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-label="Просмотр медиа">
+    <div class="modal-panel">
+      <button id="closeModal" class="modal-btn" type="button" aria-label="Закрыть просмотр">×</button>
+      <button id="prevModal" class="nav-btn nav-prev" type="button" aria-label="Предыдущий элемент">‹</button>
+      <button id="nextModal" class="nav-btn nav-next" type="button" aria-label="Следующий элемент">›</button>
+      <div id="modalCounter" class="modal-counter">1 / 1</div>
+
+      <div id="modalMedia" class="modal-media">
+        <div class="fallback">
+          <strong>Файл не найден</strong>
+          <small></small>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="systemPlayerButton" class="system-player-btn" type="button">Открыть плеер</button>
+      </div>
+
+      <div class="modal-fade">
+        <h2 id="modalTitle" class="modal-title"></h2>
+        <p id="modalSubtitle" class="modal-subtitle"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const META_FOLDER = 'meta';
+
+    const mediaFiles = [
+      'IMG_6006.jpeg',
+      'photo_2026-04-16_23-23-45.jpg',
+      'photo_2026-04-16_23-23-46.jpg',
+      'photo_2026-04-16_23-23-59.jpg',
+      'photo_2026-04-16_23-24-01.jpg',
+      'photo_2026-04-16_23-24-05.jpg',
+      'ниггер трахается за бананы.mp4',
+      'очкастая сучка ебется в рот.mp4'
+    ];
+
+    const ageGate = document.getElementById('ageGate');
+    const confirmAgeButton = document.getElementById('confirmAgeButton');
+    const declineAgeButton = document.getElementById('declineAgeButton');
+    const feed = document.getElementById('feed');
+    const searchInput = document.getElementById('searchInput');
+    const statusText = document.getElementById('statusText');
+    const modal = document.getElementById('modal');
+    const modalMedia = document.getElementById('modalMedia');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalSubtitle = document.getElementById('modalSubtitle');
+    const modalCounter = document.getElementById('modalCounter');
+    const closeModalBtn = document.getElementById('closeModal');
+    const prevModalBtn = document.getElementById('prevModal');
+    const nextModalBtn = document.getElementById('nextModal');
+    const systemPlayerButton = document.getElementById('systemPlayerButton');
+
+    let mediaItems = [];
+    let visibleItems = [];
+    let searchQuery = '';
+    let currentModalIndex = 0;
+    let autoplayObserver = null;
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function(char) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        };
+        return map[char];
+      });
+    }
+
+    function getFileNameWithoutExtension(name) {
+      const lastDotIndex = name.lastIndexOf('.');
+      return lastDotIndex > 0 ? name.slice(0, lastDotIndex) : name;
+    }
+
+    function getMediaTypeFromName(fileName) {
+      const ext = (fileName.split('.').pop() || '').toLowerCase();
+      const imageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg', 'avif'];
+      const videoExts = ['mp4', 'webm', 'mov', 'm4v', 'ogv', 'ogg'];
+
+      if (imageExts.includes(ext)) return 'photo';
+      if (videoExts.includes(ext)) return 'video';
+      return null;
+    }
+
+    function shuffleArray(array) {
+      const result = [...array];
+      for (let i = result.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function buildMediaFromArray() {
+      mediaItems = shuffleArray(
+        mediaFiles
+          .map(fileName => {
+            const cleanFileName = String(fileName).split(/[\\/]/).pop();
+            const type = getMediaTypeFromName(cleanFileName);
+            if (!type) return null;
+
+            return {
+              type,
+              fileName: cleanFileName,
+              title: getFileNameWithoutExtension(cleanFileName),
+              src: `${META_FOLDER}/${cleanFileName}`
+            };
+          })
+          .filter(Boolean)
+      );
+
+      visibleItems = [...mediaItems];
+      statusText.textContent = mediaItems.length
+        ? `Найдено файлов: ${mediaItems.length}`
+        : `В папке ${META_FOLDER} нет поддерживаемых фото или видео.`;
+
+      renderFeed();
+    }
+
+    function getVisibleItems() {
+      const q = searchQuery.trim().toLowerCase();
+      if (!q) return [...mediaItems];
+
+      return mediaItems.filter(item => {
+        const title = item.title.toLowerCase();
+        const fileName = item.fileName.toLowerCase();
+        return title.includes(q) || fileName.includes(q);
+      });
+    }
+
+    function createFallbackMarkup(src) {
+      return `
+        <div class="fallback">
+          <strong>Файл не найден</strong>
+          <small>${escapeHtml(src)}</small>
+        </div>
+      `;
+    }
+
+    function renderFeed() {
+      visibleItems = getVisibleItems();
+      feed.innerHTML = '';
+
+      if (!mediaItems.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = `После нажатия "Да" будут загружены файлы из папки ${META_FOLDER}.`;
+        feed.appendChild(empty);
+        return;
+      }
+
+      if (!visibleItems.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'Ничего не найдено.';
+        feed.appendChild(empty);
+        return;
+      }
+
+      visibleItems.forEach((item, index) => {
+        const article = document.createElement('article');
+        article.className = 'card';
+        article.setAttribute('tabindex', '0');
+        article.setAttribute('role', 'button');
+        article.setAttribute('aria-label', `${item.title}. Открыть в полноэкранном режиме`);
+        article.dataset.index = String(index);
+
+        let mediaMarkup = '';
+        if (item.type === 'photo') {
+          mediaMarkup = `
+            <img
+              src="${item.src}"
+              alt="${escapeHtml(item.title)}"
+              loading="lazy"
+              decoding="async"
+              draggable="false"
+              onerror="markCardMissing(this, '${escapeHtml(item.src)}')"
+            />
+          `;
+        } else {
+          mediaMarkup = `
+            <video
+              src="${item.src}"
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              onerror="markCardMissing(this, '${escapeHtml(item.src)}')"
+            ></video>
+          `;
+        }
+
+        article.innerHTML = `
+          <div class="media-wrap">
+            ${item.type === 'video' ? '<div class="video-indicator">Видео</div>' : ''}
+            ${mediaMarkup}
+            ${createFallbackMarkup(item.src)}
+          </div>
+          <div class="card-body">
+            <div>
+              <h2 class="card-title">${escapeHtml(item.title)}</h2>
+            </div>
+            <div class="open-hint">Open</div>
+          </div>
+        `;
+
+        article.addEventListener('click', (event) => {
+          const isControl = event.target.closest('button');
+          if (!isControl) openModal(index);
+        });
+
+        article.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openModal(index);
+          }
+        });
+
+        feed.appendChild(article);
+      });
+
+      setupVideoAutoplay();
+    }
+
+    function markCardMissing(element, src) {
+      const card = element.closest('.card');
+      if (!card) return;
+      card.classList.add('is-missing');
+      const fallbackText = card.querySelector('.fallback small');
+      if (fallbackText) fallbackText.textContent = src;
+      if (element.tagName === 'VIDEO') {
+        try { element.pause(); } catch (_) {}
+      }
+    }
+
+    function markModalMissing(src) {
+      modalMedia.classList.add('is-missing');
+      const fallbackText = modalMedia.querySelector('.fallback small');
+      if (fallbackText) fallbackText.textContent = src;
+    }
+
+    window.markCardMissing = markCardMissing;
+
+    function setupVideoAutoplay() {
+      if (autoplayObserver) autoplayObserver.disconnect();
+
+      const videos = Array.from(document.querySelectorAll('.card video'));
+      if (!('IntersectionObserver' in window) || !videos.length) return;
+
+      autoplayObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+            const playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+              playPromise.catch(() => {});
+            }
+          } else {
+            video.pause();
+          }
+        });
+      }, { threshold: [0, 0.3, 0.6, 0.9] });
+
+      videos.forEach(video => autoplayObserver.observe(video));
+    }
+
+    function openModal(index) {
+      currentModalIndex = index;
+      updateModal();
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      modal.classList.remove('show-video-action');
+
+      const activeVideo = modalMedia.querySelector('video');
+      if (activeVideo) activeVideo.pause();
+
+      modalMedia.classList.remove('is-missing');
+    }
+
+    function updateModal() {
+      const item = visibleItems[currentModalIndex];
+      if (!item) return;
+
+      modalMedia.classList.remove('is-missing');
+      modal.classList.toggle('show-video-action', item.type === 'video');
+
+      let mediaElement;
+      if (item.type === 'photo') {
+        mediaElement = document.createElement('img');
+        mediaElement.src = item.src;
+        mediaElement.alt = item.title;
+        mediaElement.loading = 'eager';
+        mediaElement.decoding = 'async';
+        mediaElement.draggable = false;
+        mediaElement.onerror = () => markModalMissing(item.src);
+      } else {
+        mediaElement = document.createElement('video');
+        mediaElement.src = item.src;
+        mediaElement.controls = true;
+        mediaElement.autoplay = true;
+        mediaElement.muted = false;
+        mediaElement.loop = false;
+        mediaElement.playsInline = false;
+        mediaElement.preload = 'metadata';
+        mediaElement.setAttribute('controlsList', 'nodownload');
+        mediaElement.onerror = () => markModalMissing(item.src);
+      }
+
+      modalMedia.innerHTML = createFallbackMarkup(item.src);
+      modalMedia.prepend(mediaElement);
+
+      modalTitle.textContent = item.title;
+      modalSubtitle.textContent = `${item.type === 'photo' ? 'Изображение' : 'Видео'} · ${item.fileName}`;
+      modalCounter.textContent = `${currentModalIndex + 1} / ${visibleItems.length}`;
+    }
+
+    function goToNext() {
+      if (!visibleItems.length) return;
+      currentModalIndex = (currentModalIndex + 1) % visibleItems.length;
+      updateModal();
+    }
+
+    function goToPrev() {
+      if (!visibleItems.length) return;
+      currentModalIndex = (currentModalIndex - 1 + visibleItems.length) % visibleItems.length;
+      updateModal();
+    }
+
+    function openSystemPlayer() {
+      const item = visibleItems[currentModalIndex];
+      const video = modalMedia.querySelector('video');
+      if (!item || item.type !== 'video' || !video) return;
+
+      try {
+        if (typeof video.webkitEnterFullscreen === 'function') {
+          video.webkitEnterFullscreen();
+          return;
+        }
+      } catch (_) {}
+
+      try {
+        if (typeof video.requestFullscreen === 'function') {
+          video.requestFullscreen();
+          return;
+        }
+      } catch (_) {}
+
+      try {
+        window.open(item.src, '_blank', 'noopener');
+      } catch (_) {}
+    }
+
+    function confirmAge() {
+      ageGate.classList.add('hidden');
+      document.body.style.overflow = '';
+      buildMediaFromArray();
+    }
+
+    function declineAge() {
+      statusText.textContent = 'может попробуешь ещё раз?';
+      feed.innerHTML = '';
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'может попробуешь ещё раз?';
+      feed.appendChild(empty);
+    }
+
+    confirmAgeButton.addEventListener('click', confirmAge);
+    declineAgeButton.addEventListener('click', declineAge);
+
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value;
+      renderFeed();
+    });
+
+    closeModalBtn.addEventListener('click', closeModal);
+    nextModalBtn.addEventListener('click', goToNext);
+    prevModalBtn.addEventListener('click', goToPrev);
+    systemPlayerButton.addEventListener('click', openSystemPlayer);
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && ['c', 'a', 'x', 's', 'u'].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+      }
+      if (event.key === 'F12') {
+        event.preventDefault();
+      }
+      if (event.key === 'Escape' && modal.classList.contains('open')) {
+        closeModal();
+        return;
+      }
+      if (event.key === 'ArrowRight' && modal.classList.contains('open')) goToNext();
+      if (event.key === 'ArrowLeft' && modal.classList.contains('open')) goToPrev();
+    });
+
+    document.addEventListener('copy', event => event.preventDefault());
+    document.addEventListener('cut', event => event.preventDefault());
+    document.addEventListener('dragstart', event => event.preventDefault());
+
+    renderFeed();
+  </script>
+</body>
+</html>
